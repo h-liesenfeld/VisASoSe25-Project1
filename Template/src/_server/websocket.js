@@ -3,8 +3,10 @@ import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
 // const preprocessing = require("./preprocessing.js")
-import { is_below_max_weight, parse_numbers, calc_bmi } from "./preprocessing.js"
+import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data } from "./preprocessing.js"
 import { getExampleLDA } from "./druidExample.js";
+import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
+
 
 const file_path = "data/"
 const file_name = "example_data.csv"
@@ -80,5 +82,16 @@ export function setupConnection(socket) {
         })
       })
     console.log(`freshData emitted`)
+  })
+
+  socket.on("get_box_plot_2_1_data", () => {
+    console.log("Request Box Plot Data for Task 2.1")
+
+    const data_array = calc_box_plot_data(boardgames_100)
+
+    socket.emit("box_plot_2_1_data", {
+      timestamp: new Date().getTime(),
+      data: data_array
+    })
   })
 }

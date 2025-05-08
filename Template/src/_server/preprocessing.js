@@ -2,6 +2,8 @@
  * Helper function to preprocess the data
  */
 
+import * as d3 from "d3"
+
 /**
  * # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
  *
@@ -11,6 +13,45 @@
  *
  * # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
  */
+
+export function calc_box_plot_data(games) {
+  // Group by maxplayers
+  const groups = d3.group(games, d => d.maxplayers);
+
+  let box_plot_data = [];
+
+  for (const [max_players, games_list] of groups.entries()) {
+    const ratings = games_list
+      .map(g => g.rating.rating)
+      .sort(d3.ascending);
+
+    const min = d3.min(ratings);
+    const max = d3.max(ratings);
+    const q1 = d3.quantile(ratings, 0.25);
+    const median = d3.quantile(ratings, 0.5);
+    const q3 = d3.quantile(ratings, 0.75);
+
+    box_plot_data.push({
+      [max_players]: {
+        min,
+        q1,
+        median,
+        q3,
+        max,
+      }
+    });
+  }
+
+  // Sort by max_players
+  box_plot_data = box_plot_data.sort((a, b) => {
+    const a_ = Object.keys(a)[0];
+    const b_ = Object.keys(b)[0];
+    return a_ - b_;
+  });
+
+  return box_plot_data;
+}
+
 /**
  * Returns boolean value, whether given row meets parameter conditions
  * @param {*} parameters

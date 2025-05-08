@@ -1,8 +1,9 @@
 import io from "socket.io-client"
 import "./app.css"
-import {configs} from "../_server/static/configs.js"
-import {draw_barchart} from "./barchart.js"
-import {draw_scatterplot} from "./scatterplot.js"
+import { configs } from "../_server/static/configs.js"
+import { draw_barchart } from "./barchart.js"
+import { draw_scatterplot } from "./scatterplot.js"
+import { draw_box_plot_2_1 } from "./box_plot_2_1.js"
 import * as d3 from "d3"
 
 let hostname = window.location.hostname
@@ -32,15 +33,28 @@ let requestData = (parameters) => {
 /**
  * Assigning the callback to request the data on click.
  */
-document.getElementById("load_data_button").onclick = () => {
-  let max_weight = document.getElementById("max_weight").value
-  if (!isNaN(max_weight)) {
-    max_weight = parseFloat(max_weight)
-  } else {
-    max_weight = Infinity
-  }
-  requestData({ max_weight })
+// document.getElementById("load_data_button").onclick = () => {
+//   let max_weight = document.getElementById("max_weight").value
+//   if (!isNaN(max_weight)) {
+//     max_weight = parseFloat(max_weight)
+//   } else {
+//     max_weight = Infinity
+//   }
+//   requestData({ max_weight })
+// }
+
+document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
+  socket.emit("get_box_plot_2_1_data")
 }
+
+let box_plot_2_1_data = undefined
+
+let handle_box_plot_2_1_data = (payload) => {
+  box_plot_2_1_data = payload.data
+  draw_box_plot_2_1(box_plot_2_1_data)
+}
+
+socket.on("box_plot_2_1_data", handle_box_plot_2_1_data)
 
 /**
  * Object, that will store the loaded data.

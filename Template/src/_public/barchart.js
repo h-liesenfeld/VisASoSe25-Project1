@@ -1,6 +1,6 @@
 import * as d3 from "d3"
 
-export function draw_barchart (data) {
+export function draw_barchart(data) {
   console.log("drawing barchart")
   console.log(data)
 
