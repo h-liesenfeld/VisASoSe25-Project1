@@ -4,53 +4,53 @@ head,
 #root,
 #app,
 .svg_root {
-  padding: 0px;
-  margin: 0px;
-  height: 100%;
-  width: 100%;
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+    width: 100%;
 
-  overflow: hidden;
+    overflow: hidden;
 }
 
 #root {
-  display: grid;
-  grid-template-columns: 300px auto;
-  grid-template-rows: 100px auto;
-  grid-template-areas: "banner banner" "sidepanel visualizations";
+    display: grid;
+    grid-template-columns: 300px auto;
+    grid-template-rows: 100px auto;
+    grid-template-areas: "banner banner" "sidepanel visualizations";
 }
 
 .banner {
-  grid-area: banner;
-  background: rgb(120, 150, 196);
+    grid-area: banner;
+    background: rgb(120, 150, 196);
 
-  text-align: center;
-  line-height: 100px;
-  font-size: 40px;
-  font-weight: bold;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-align: center;
+    line-height: 100px;
+    font-size: 40px;
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .sidepanel {
-  grid-area: sidepanel;
-  background: rgb(202, 202, 202);
-  padding: 20px;
+    grid-area: sidepanel;
+    background: rgb(202, 202, 202);
+    padding: 20px;
 }
 
 .visualizations {
-  grid-area: visualizations;
+    grid-area: visualizations;
 
-  display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: auto;
-  grid-template-areas: "box_plot_2_1";
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+    grid-template-areas: "box_plot_2_1";
 }
 
 .barchart {
-  grid-area: barchart;
+    grid-area: barchart;
 }
 
 .scatterplot {
-  grid-area: scatterplot;
+    grid-area: scatterplot;
 }
 
 .button {
@@ -61,7 +61,7 @@ head,
     height: 50px;
     font-size: 1.2em;
     font-weight: bold;
-
+    margin-top: 20px;
     cursor: pointer;
 }
 
@@ -69,7 +69,8 @@ head,
     background: rgb(180, 180, 180);
 }
 
-input[type=text], select {
+input[type=text],
+select {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -77,4 +78,4 @@ input[type=text], select {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-  }
+}
