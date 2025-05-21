@@ -4,6 +4,7 @@ import { configs } from "../_server/static/configs.js"
 import { draw_barchart } from "./barchart.js"
 import { draw_scatterplot } from "./scatterplot.js"
 import { draw_box_plot_2_1 } from "./box_plot_2_1.js"
+import { draw_barchart_2_1 } from "./barchart_2_1.js"
 import * as d3 from "d3"
 
 let hostname = window.location.hostname
@@ -55,6 +56,22 @@ let handle_box_plot_2_1_data = (payload) => {
 }
 
 socket.on("box_plot_2_1_data", handle_box_plot_2_1_data)
+
+/**
+ * On-Click behaviour for Task 2.1 Bar Chart
+ */
+document.getElementById("load_barchart_2_1_data_button").onclick = () => {
+  socket.emit("get_barchart_2_1_data")
+}
+
+let barchart_2_1_data = undefined
+
+let handle_barchart_2_1_data = (payload) => {
+  barchart_2_1_data = payload.data
+  draw_barchart_2_1(barchart_2_1_data)
+}
+
+socket.on("barchart_2_1_data", handle_barchart_2_1_data)
 
 /**
  * Object, that will store the loaded data.
