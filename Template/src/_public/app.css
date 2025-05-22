@@ -40,9 +40,11 @@ head,
   grid-area: visualizations;
 
   display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: auto;
-  grid-template-areas: "box_plot_2_1";
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  grid-template-areas: "box_plot_2_1 barchart_2_1";
+
+  padding-left: 10px;
 }
 
 .barchart {

@@ -46,6 +46,7 @@ let requestData = (parameters) => {
 
 document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
   socket.emit("get_box_plot_2_1_data")
+  socket.emit("get_barchart_2_1_data")
 }
 
 let box_plot_2_1_data = undefined
@@ -60,9 +61,9 @@ socket.on("box_plot_2_1_data", handle_box_plot_2_1_data)
 /**
  * On-Click behaviour for Task 2.1 Bar Chart
  */
-document.getElementById("load_barchart_2_1_data_button").onclick = () => {
-  socket.emit("get_barchart_2_1_data")
-}
+// document.getElementById("load_barchart_2_1_data_button").onclick = () => {
+//   socket.emit("get_barchart_2_1_data")
+// }
 
 let barchart_2_1_data = undefined
 

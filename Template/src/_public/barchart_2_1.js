@@ -71,6 +71,7 @@ export function draw_barchart_2_1(data) {
     .attr("width", xScale.bandwidth())
     .attr("height", d => height - margin.top - margin.bottom - yScale(Object.values(d)[0].count))
     .attr("fill", "steelblue")
+    .attr("stroke", "black")
 
   barchart_rect.exit().remove()
 
