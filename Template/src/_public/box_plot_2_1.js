@@ -159,7 +159,7 @@ export function draw_box_plot_2_1(data) {
       .attr("width", box_width)
       .attr("y", d => yScale(d.q3))
       .attr("height", d => yScale(d.q1) - yScale(d.q3))
-      .attr("fill", "#69b3a2")
+      .attr("fill", "steelblue")
       .attr("stroke", "black")
 
     box.exit().remove()

@@ -94,6 +94,32 @@ export function calcLDAData(allData) {
 }
 
 /**
+ * Bar Chart for Task 2.1 pre-processing
+ */
+export function calc_barchart_data(games) {
+  // Group by maxplayers
+  const groups = d3.group(games, d => d.maxplayers);
+
+  const countData = [];
+
+  for (const [max_players, games_list] of groups.entries()) {
+    countData.push({
+      [max_players]: {
+        count: games_list.length
+      }
+    });
+  }
+
+  countData.sort((a, b) => {
+    const aKey = parseInt(Object.keys(a)[0]);
+    const bKey = parseInt(Object.keys(b)[0]);
+    return aKey - bKey;
+  });
+
+  return countData;
+}
+
+/**
  * Returns boolean value, whether given row meets parameter conditions
  * @param {*} parameters
  * @param {*} row

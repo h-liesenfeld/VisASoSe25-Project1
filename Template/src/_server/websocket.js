@@ -3,7 +3,7 @@ import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
 // const preprocessing = require("./preprocessing.js")
-import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data, calc_scatterplot_data } from "./preprocessing.js"
+import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
 import { getExampleLDA } from "./druidExample.js";
 import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
 
@@ -101,4 +101,16 @@ export function setupConnection(socket) {
             data: data_array
         });
     });
+  })
+
+  socket.on("get_barchart_2_1_data", () => {
+    console.log("Request Bar Chart Data for Task 2.1")
+
+    const data_array = calc_barchart_data(boardgames_100)
+
+    socket.emit("barchart_2_1_data", {
+      timestamp: new Date().getTime(),
+      data: data_array
+    })
+  })
 }
