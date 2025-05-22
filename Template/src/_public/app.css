@@ -41,7 +41,7 @@ head,
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: auto auto;
-    grid-template-areas: "box_plot_2_1 barchart_2_1";
+    grid-template-areas: "box_plot_2_1 barchart_2_1" "scatterplot_2_2";
 
     padding-left: 10px;
 }

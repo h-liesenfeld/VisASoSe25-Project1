@@ -50,8 +50,6 @@ document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
   socket.emit("get_barchart_2_1_data")
 }
 
-document.getElementById("load_box_plot_2_1_data_button").onclick = () => socket.emit("get_box_plot_2_1_data");
-
 let box_plot_2_1_data = undefined;
 
 let handle_box_plot_2_1_data = (payload) => {

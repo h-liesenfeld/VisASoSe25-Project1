@@ -101,16 +101,15 @@ export function setupConnection(socket) {
             data: data_array
         });
     });
-  })
 
-  socket.on("get_barchart_2_1_data", () => {
-    console.log("Request Bar Chart Data for Task 2.1")
+    socket.on("get_barchart_2_1_data", () => {
+        console.log("Request Bar Chart Data for Task 2.1")
 
-    const data_array = calc_barchart_data(boardgames_100)
+        const data_array = calc_barchart_data(boardgames_100)
 
-    socket.emit("barchart_2_1_data", {
-      timestamp: new Date().getTime(),
-      data: data_array
+        socket.emit("barchart_2_1_data", {
+            timestamp: new Date().getTime(),
+            data: data_array
+        })
     })
-  })
 }
