@@ -75,11 +75,7 @@ export function draw_scatterplot_2_2(data) {
         d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
         tooltip
             .style("visibility", "visible")
-            .text(`x: ${d.x.toFixed(2)}, y: ${d.y.toFixed(2)}`);
-           
-           
-            /* Catagory version displays undefined can't understand why
-            .text(`x: ${d.x.toFixed(2)}, y: ${d.y.toFixed(2)}, category: ${d.categoryName}`);*/
+            .text(`x: ${d.x.toFixed(2)}, y: ${d.y.toFixed(2)}, category: ${d.category}`);
 })
     .on("mousemove", function (event) {
     tooltip
