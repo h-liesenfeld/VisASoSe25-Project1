@@ -64,10 +64,33 @@ document.getElementById("load_scatterplot_2_2_data_button").onclick = () => sock
 
 let scatterplot_2_2_data = undefined;
 
+
+
 let handle_scatterplot_2_2_data = (payload) => {
     scatterplot_2_2_data = payload.data;
     draw_scatterplot_2_2(scatterplot_2_2_data);
+    setupLDADropdownOptions(scatterplot_2_2_data);
 }
+function setupLDADropdownOptions(data) {
+    const select = document.getElementById("lda_filter_select");
+    const uniqueGroups = [...new Set(data.map(d => d.category))];
+
+    select.innerHTML = `<option value="all">All</option>`;
+    uniqueGroups.forEach(group => {
+    const opt = document.createElement("option");
+    opt.value = group;
+    opt.textContent = group;
+    select.appendChild(opt);
+});
+
+  // Filters category data
+select.addEventListener("change", () => {
+    const selected = select.value;
+    const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
+    draw_scatterplot_2_2(filtered);
+});
+}
+
 
 socket.on("scatterplot_2_2_data", handle_scatterplot_2_2_data);
 
