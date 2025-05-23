@@ -67,7 +67,7 @@ export function draw_scatterplot_2_2(data) {
     .append("circle")
     .attr("class", "scatterplot_circle")
     .merge(scatterplot_circle)
-    .attr("fill", d => color(d))
+    .attr("fill", d => color(d.category))
     .attr("r", 5)
     .attr("cx", d => margin.left + xScale(d.x))
     .attr("cy", d => yScale(d.y) + margin.top)
