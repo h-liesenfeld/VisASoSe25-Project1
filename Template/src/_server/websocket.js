@@ -9,7 +9,8 @@ import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
 
 
 const file_path = "data/"
-const file_name = "example_data.csv"
+const file_name = "bgg_Gameitems_clean.csv"
+let bgg_Gamesitems = [];
 
 /**
  * Does some console.logs when a client connected.
@@ -47,45 +48,34 @@ export function setupConnection(socket) {
      *      - Filtering: if the row has a value, that contradicts the filtering parameters, data row will be excluded
      *          (in this case: weight should not be larger than the max_weight filter-parameter)
      */
-    socket.on("getData", (obj) => {
-        console.log(`Data request with properties ${JSON.stringify(obj)}...`);
+    socket.on("getData", () => {
+        //console.log(`Data request with properties ${JSON.stringify(obj)}...`);
 
-        getExampleLDA(); //Example how to use druidjs. Just prints to the console for now
+        //let parameters = obj.parameters;
 
-
-        let parameters = obj.parameters;
-
-        let jsonArray = [];
+        let dataArray = [];
 
         // This is reading the .csv file line by line
         // So we can filter it line by line
         // This saves a lot of RAM and processing time
         fs.createReadStream(file_path + file_name)
             .pipe(parse({ delimiter: ',', columns: true }))
-            .on('data', function (row) {
-                row = parse_numbers(row)
-                row = calc_bmi(row)
-                // Filtering the data according the given parameter
-                // If it fits the parameter, add it to the result-array
-                let row_meets_criteria = is_below_max_weight(parameters, row)
-                if (row_meets_criteria) {
-                    jsonArray.push(row)
-                }
-            })
+            .on('data', row => dataArray.push(row))
             .on("end", () => { //when all data is ready and processed, send it to the frontend of the socket
                 socket.emit("freshData", {
                     timestamp: new Date().getTime(),
-                    data: jsonArray,
-                    parameters: parameters,
+                    data: dataArray,
                 })
+                bgg_Gamesitems = dataArray;
             });
         console.log(`freshData emitted`);
     })
 
-    socket.on("get_box_plot_2_1_data", () => {
+    socket.on("get_box_plot_2_1_data", (dataSelection) => {
         console.log("Request Box Plot Data for Task 2.1");
 
-        const data_array = calc_box_plot_data(boardgames_100);
+        //TODO: use new data
+        const data_array = calc_box_plot_data(bgg_Gamesitems, dataSelection);
 
         socket.emit("box_plot_2_1_data", {
             timestamp: new Date().getTime(),
@@ -93,19 +83,20 @@ export function setupConnection(socket) {
         });
     });
 
-    socket.on("get_scatterplot_2_2_data", () => {
+    socket.on("get_scatterplot_2_2_data", (dataSelection) => {
         console.log("Request Scatterplot Data for Task 2.2");
-        const data_array = calc_scatterplot_data(boardgames_100);
+        //TODO: use new data
+        const data_array = calc_scatterplot_data(bgg_Gamesitems, dataSelection);
         socket.emit("scatterplot_2_2_data", {
             timestamp: new Date().getTime(),
             data: data_array
         });
     });
 
-    socket.on("get_barchart_2_1_data", () => {
+    socket.on("get_barchart_2_1_data", (dataSelection) => {
         console.log("Request Bar Chart Data for Task 2.1")
 
-        const data_array = calc_barchart_data(boardgames_100)
+        const data_array = calc_barchart_data(bgg_Gamesitems, dataSelection)
 
         socket.emit("barchart_2_1_data", {
             timestamp: new Date().getTime(),

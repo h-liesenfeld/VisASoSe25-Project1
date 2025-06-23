@@ -10,16 +10,28 @@
 <body>
   <noscript> You need to enable JavaScript to run this app. </noscript>
   <div class="root" id="root">
-    <div class="banner">Dashboard Project 1</div>
+    <div class="banner">Dashboard Project 2</div>
     <div class="sidepanel">
       <button id="load_box_plot_2_1_data_button" class="button">Load Task 2.1</button>
       <button id="load_scatterplot_2_2_data_button" class="button">Load Task 2.2</button>
-      <label for="lda_filter_select">Filter Group:</label>
-      <select id="lda_filter_select" class="dropdown">
-        <option value="all">All</option>
-      </select>
-
-
+      <div class="custom-select">
+        <label for="lda_filter_select" class="lda-select-label">Filter Category:</label>
+        <select id="lda_filter_select" class="dropdown">
+            <option value="all">All</option>
+        </select>
+      </div>
+      <!-- select data -->
+      <div class="custom-select">
+        <label for="data_filter_select" class="lda-select-label">Filter Data:</label>
+        <select id="data_filter_select" class="dropdown">
+            <option value="all">All</option>
+            <option value="top-1000">Top 1000</option>
+            <option value="top-500">Top 500</option>
+            <option value="top-200">Top 200</option>
+            <option value="top-100">Top 100</option>
+            <!-- option value="all">Custom</option   See if this is doable -->
+        </select>
+      </div>
       <!-- <button id="load_barchart_2_1_data_button" class="button">Load Task 2.1 (Barchart)</button> -->
     </div>
     <div class="visualizations">

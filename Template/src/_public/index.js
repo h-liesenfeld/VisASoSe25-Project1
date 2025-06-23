@@ -11,6 +11,7 @@ import * as d3 from "d3"
 let hostname = window.location.hostname;
 let protocol = window.location.protocol;
 const socketUrl = protocol + "//" + hostname + ":" + configs.port;
+let dataSelection = 100;
 
 export const socket = io(socketUrl)
 socket.on("connect", () => {
@@ -45,9 +46,37 @@ socket.on("disconnect", () => {
 //   requestData({ max_weight })
 // }
 
+const dataSelectElem = document.getElementById('data_filter_select');
+dataSelectElem.addEventListener('change', (event) => {
+    const selectedValue = event.target.value;
+    console.log('Selected value:', selectedValue);
+    switch(selectedValue) {
+        case 'all':
+            dataSelection = -1;
+            break;
+        case 'top-1000':
+            dataSelection = 1000;
+            break;
+        case 'top-200':
+            dataSelection = 200;
+            break;
+        case 'top-100':
+            dataSelection = 100;
+            break;
+        default:
+            dataSelection = 100;
+            break;
+    }
+    socket.emit("getData");
+  });
+
 document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
-  socket.emit("get_box_plot_2_1_data")
-  socket.emit("get_barchart_2_1_data")
+  socket.emit("get_box_plot_2_1_data", {
+            dataSelection: dataSelection
+        })
+  socket.emit("get_barchart_2_1_data", {
+            dataSelection: dataSelection
+        })
 }
 
 let box_plot_2_1_data = undefined;
@@ -60,7 +89,9 @@ let handle_box_plot_2_1_data = (payload) => {
 socket.on("box_plot_2_1_data", handle_box_plot_2_1_data);
 
 
-document.getElementById("load_scatterplot_2_2_data_button").onclick = () => socket.emit("get_scatterplot_2_2_data");
+document.getElementById("load_scatterplot_2_2_data_button").onclick = () => socket.emit("get_scatterplot_2_2_data", {
+            dataSelection: dataSelection
+        });
 
 let scatterplot_2_2_data = undefined;
 
@@ -125,25 +156,9 @@ let data = {
 let handleData = (payload) => {
     console.log(`Fresh data from Webserver:`);
     console.log(payload);
-    // Parse the data into the needed format for the d3 visualizations (if necessary)
-    // Here, the barchart shows two bars
-    // So the data is preprocessed accordingly
 
-    let count_too_much_weight = 0;
-    let count_good_weight = 0;
-
-    for (let person of payload.data) {
-        if (person.bmi >= 25) {
-            count_too_much_weight++;
-        } else {
-            count_good_weight++;
-        }
-    }
-
-    data.barchart = [count_too_much_weight, count_good_weight];
-    data.scatterplot = payload.data;
-    draw_barchart(data.barchart);
-    draw_scatterplot(data.scatterplot);
+    //TODO: Filter First-k rows
+    //redraw all of the plots
 }
 
 socket.on("freshData", handleData);

@@ -15,7 +15,9 @@ import * as druid from "@saehrimnir/druidjs";
  * # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
  */
 
-export function calc_box_plot_data(games) {
+export function calc_box_plot_data(games, dataSelection) {
+    //TODO: take first k(=dataSelection) elements of games
+
     // Group by maxplayers
     const groups = d3.group(games, d => d.maxplayers);
 
@@ -53,7 +55,9 @@ export function calc_box_plot_data(games) {
     return box_plot_data;
 }
 
-export function calc_scatterplot_data(games) {
+export function calc_scatterplot_data(games, dataSelection) {
+    //TODO: take first k(=dataSelection) elements of games
+
     // Get unique categories
     let uniqueCategoriesArr = getUniqueGameCategories(games);
 
@@ -85,10 +89,10 @@ export function calcLDAData(allData) {
 
     const X = druid.Matrix.from(numberData).T;
     const reductionLDA = new druid.LDA(X, { labels: labels, d: 2 }).transform().to2dArray;
-    
+
     let scatterplotdata = [];
     for (let i = 0; i < allData.length; i++) {
-        scatterplotdata.push({category: labels[i], gameTitle: allData[i].gameTitle, x: Math.abs(reductionLDA[i][0]), y: Math.abs(reductionLDA[i][1])});
+        scatterplotdata.push({ category: labels[i], gameTitle: allData[i].gameTitle, x: Math.abs(reductionLDA[i][0]), y: Math.abs(reductionLDA[i][1]) });
     }
     return scatterplotdata;
 }
@@ -96,27 +100,29 @@ export function calcLDAData(allData) {
 /**
  * Bar Chart for Task 2.1 pre-processing
  */
-export function calc_barchart_data(games) {
-  // Group by maxplayers
-  const groups = d3.group(games, d => d.maxplayers);
+export function calc_barchart_data(games, dataSelection) {
+    //TODO: take first k(=dataSelection) elements of games
+    
+    // Group by maxplayers
+    const groups = d3.group(games, d => d.maxplayers);
 
-  const countData = [];
+    const countData = [];
 
-  for (const [max_players, games_list] of groups.entries()) {
-    countData.push({
-      [max_players]: {
-        count: games_list.length
-      }
+    for (const [max_players, games_list] of groups.entries()) {
+        countData.push({
+            [max_players]: {
+                count: games_list.length
+            }
+        });
+    }
+
+    countData.sort((a, b) => {
+        const aKey = parseInt(Object.keys(a)[0]);
+        const bKey = parseInt(Object.keys(b)[0]);
+        return aKey - bKey;
     });
-  }
 
-  countData.sort((a, b) => {
-    const aKey = parseInt(Object.keys(a)[0]);
-    const bKey = parseInt(Object.keys(b)[0]);
-    return aKey - bKey;
-  });
-
-  return countData;
+    return countData;
 }
 
 /**
@@ -193,7 +199,7 @@ export function countGamesOfAllCategories(games) {
     let categoriesWithNumberOfGames = [];
     uniqueCategoriesArr.forEach(cat => {
         let numberOfGames = numberOfGamesPerCategory(cat, games);
-        categoriesWithNumberOfGames.push({id: cat.id, name: cat.name, numberOfGames: numberOfGames});
+        categoriesWithNumberOfGames.push({ id: cat.id, name: cat.name, numberOfGames: numberOfGames });
     });
     return categoriesWithNumberOfGames.sort((a, b) => (b.numberOfGames - a.numberOfGames));
 }
