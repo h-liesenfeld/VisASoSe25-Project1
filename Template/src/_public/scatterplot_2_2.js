@@ -20,11 +20,11 @@ export function draw_scatterplot_2_2(data) {
     let svg = d3.select("#scatterplot_2_2_svg");
     let g_scatterplot = d3.select("#g_scatterplot_2_2");
     const tooltip = d3.select("#tooltip");
-    
+
     let g_x_axis_scatterplot = d3.select("#g_x_axis_scatterplot_2_2");
     let g_y_axis_scatterplot = d3.select("#g_y_axis_scatterplot_2_2");
 
-    
+
 
     /**
      * Getting the current width/height of the whole drawing pane.
@@ -48,7 +48,7 @@ export function draw_scatterplot_2_2(data) {
         .domain([d3.min(data.map((d) => d.y)), d3.max(data.map((d) => d.y))])
         .range([height - margin.top - margin.bottom, 0]);
 
-    
+
     let categories = [...new Set(data.map(d => d.categoryName))]
 
     var color = d3.scaleOrdinal()
@@ -63,29 +63,29 @@ export function draw_scatterplot_2_2(data) {
         .data(data)
 
     scatterplot_circle
-    .enter()
-    .append("circle")
-    .attr("class", "scatterplot_circle")
-    .merge(scatterplot_circle)
-    .attr("fill", d => color(d.category))
-    .attr("r", 5)
-    .attr("cx", d => margin.left + xScale(d.x))
-    .attr("cy", d => yScale(d.y) + margin.top)
-    .on("mouseover", function (event, d) {
-        d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
-        tooltip
-            .style("visibility", "visible")
-            .text(`x: ${d.x.toFixed(2)}, y: ${d.y.toFixed(2)}, category: ${d.category}`);
-})
-    .on("mousemove", function (event) {
-    tooltip
-        .style("top", (event.pageY + 10) + "px")
-        .style("left", (event.pageX + 10) + "px");
-})
-    .on("mouseout", function () {
-        d3.select(this).attr("stroke", null).attr("stroke-width", null);
-        tooltip.style("visibility", "hidden");
-})
+        .enter()
+        .append("circle")
+        .attr("class", "scatterplot_circle")
+        .merge(scatterplot_circle)
+        .attr("fill", d => color(d.category))
+        .attr("r", 5)
+        .attr("cx", d => margin.left + xScale(d.x))
+        .attr("cy", d => yScale(d.y) + margin.top)
+        .on("mouseover", function (event, d) {
+            d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
+            tooltip
+                .style("visibility", "visible")
+                .text(`x: ${d.x.toFixed(2)}, y: ${d.y.toFixed(2)}, category: ${d.category}`);
+        })
+        .on("mousemove", function (event) {
+            tooltip
+                .style("top", (event.pageY + 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        })
+        .on("mouseout", function () {
+            d3.select(this).attr("stroke", null).attr("stroke-width", null);
+            tooltip.style("visibility", "hidden");
+        })
 
     scatterplot_circle.exit().remove()
 

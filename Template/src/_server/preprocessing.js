@@ -85,10 +85,10 @@ export function calcLDAData(allData) {
 
     const X = druid.Matrix.from(numberData).T;
     const reductionLDA = new druid.LDA(X, { labels: labels, d: 2 }).transform().to2dArray;
-    
+
     let scatterplotdata = [];
     for (let i = 0; i < allData.length; i++) {
-        scatterplotdata.push({category: labels[i], gameTitle: allData[i].gameTitle, x: Math.abs(reductionLDA[i][0]), y: Math.abs(reductionLDA[i][1])});
+        scatterplotdata.push({ category: labels[i], gameTitle: allData[i].gameTitle, x: Math.abs(reductionLDA[i][0]), y: Math.abs(reductionLDA[i][1]) });
     }
     return scatterplotdata;
 }
@@ -97,26 +97,26 @@ export function calcLDAData(allData) {
  * Bar Chart for Task 2.1 pre-processing
  */
 export function calc_barchart_data(games) {
-  // Group by maxplayers
-  const groups = d3.group(games, d => d.maxplayers);
+    // Group by maxplayers
+    const groups = d3.group(games, d => d.maxplayers);
 
-  const countData = [];
+    const countData = [];
 
-  for (const [max_players, games_list] of groups.entries()) {
-    countData.push({
-      [max_players]: {
-        count: games_list.length
-      }
+    for (const [max_players, games_list] of groups.entries()) {
+        countData.push({
+            [max_players]: {
+                count: games_list.length
+            }
+        });
+    }
+
+    countData.sort((a, b) => {
+        const aKey = parseInt(Object.keys(a)[0]);
+        const bKey = parseInt(Object.keys(b)[0]);
+        return aKey - bKey;
     });
-  }
 
-  countData.sort((a, b) => {
-    const aKey = parseInt(Object.keys(a)[0]);
-    const bKey = parseInt(Object.keys(b)[0]);
-    return aKey - bKey;
-  });
-
-  return countData;
+    return countData;
 }
 
 /**
@@ -193,7 +193,7 @@ export function countGamesOfAllCategories(games) {
     let categoriesWithNumberOfGames = [];
     uniqueCategoriesArr.forEach(cat => {
         let numberOfGames = numberOfGamesPerCategory(cat, games);
-        categoriesWithNumberOfGames.push({id: cat.id, name: cat.name, numberOfGames: numberOfGames});
+        categoriesWithNumberOfGames.push({ id: cat.id, name: cat.name, numberOfGames: numberOfGames });
     });
     return categoriesWithNumberOfGames.sort((a, b) => (b.numberOfGames - a.numberOfGames));
 }
@@ -207,4 +207,61 @@ export function numberOfGamesPerCategory(category, games) {
         }
     });
     return result;
+}
+
+export function calc_scatterplot_data_kmeans(games, weights = { max_time: 1, complexity: 1 }) {
+    // min/max für max_time und complexity bestimmen
+    const maxTimes = games.map(g => Number(g.max_time)).filter(t => !isNaN(t) && t > 0);
+    const complexities = games.map(g => Number(g.complexity)).filter(t => !isNaN(t));
+    const minTime = Math.min(...maxTimes);
+    const maxTime = Math.max(...maxTimes);
+    const minComplexity = Math.min(...complexities);
+    const maxComplexity = Math.max(...complexities);
+
+    // Logarithmische Werte für max_time
+    const minLog = Math.log(minTime);
+    const maxLog = Math.log(maxTime);
+
+    // Erst normalisieren, dann gewichten, dann nochmal normalisieren
+    let data = games.map(game => {
+        // max_time logarithmisch normieren
+        let normTime = 0;
+        if (game.max_time && !isNaN(Number(game.max_time)) && Number(game.max_time) > 0) {
+            normTime = (Math.log(Number(game.max_time)) - minLog) / (maxLog - minLog);
+        }
+        // complexity wie gehabt
+        let normComplexity = 0;
+        if (game.complexity && !isNaN(Number(game.complexity))) {
+            normComplexity = (Number(game.complexity) - minComplexity) / (maxComplexity - minComplexity);
+        }
+        return {
+            name: game.name,
+            features: [normTime * weights.max_time, normComplexity * weights.complexity],
+            original: game
+        };
+    });
+
+    // Nach Gewichtung nochmal normalisieren
+    const timeVals = data.map(d => d.features[0]);
+    const compVals = data.map(d => d.features[1]);
+    const minTimeW = Math.min(...timeVals);
+    const maxTimeW = Math.max(...timeVals);
+    const minCompW = Math.min(...compVals);
+    const maxCompW = Math.max(...compVals);
+
+    data = data.map(d => ({
+        ...d,
+        features: [
+            maxTimeW !== minTimeW ? (d.features[0] - minTimeW) / (maxTimeW - minTimeW) : 0,
+            maxCompW !== minCompW ? (d.features[1] - minCompW) / (maxCompW - minCompW) : 0
+        ]
+    }));
+
+    return {
+        data,
+        minTime,
+        maxTime,
+        minComplexity,
+        maxComplexity
+    };
 }
