@@ -6,6 +6,7 @@ import { draw_scatterplot } from "./scatterplot.js"
 import { draw_box_plot_2_1 } from "./box_plot_2_1.js"
 import { draw_scatterplot_2_2 } from "./scatterplot_2_2.js"
 import { draw_barchart_2_1 } from "./barchart_2_1.js"
+import { draw_scatterplot_kmeans } from "./scatterplot_kmeans.js";
 import * as d3 from "d3"
 
 let hostname = window.location.hostname;
@@ -46,8 +47,8 @@ socket.on("disconnect", () => {
 // }
 
 document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
-  socket.emit("get_box_plot_2_1_data")
-  socket.emit("get_barchart_2_1_data")
+    socket.emit("get_box_plot_2_1_data")
+    socket.emit("get_barchart_2_1_data")
 }
 
 let box_plot_2_1_data = undefined;
@@ -77,19 +78,37 @@ function setupLDADropdownOptions(data) {
 
     select.innerHTML = `<option value="all">All</option>`;
     uniqueGroups.forEach(group => {
-    const opt = document.createElement("option");
-    opt.value = group;
-    opt.textContent = group;
-    select.appendChild(opt);
+        const opt = document.createElement("option");
+        opt.value = group;
+        opt.textContent = group;
+        select.appendChild(opt);
+    });
+
+    // Filters category data
+    select.addEventListener("change", () => {
+        const selected = select.value;
+        const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
+        draw_scatterplot_2_2(filtered);
+    });
+}
+
+document.getElementById("run_kmeans_button").addEventListener("click", () => {
+    const k = parseInt(document.getElementById("k_input").value);
+    const maxTimeWeight = parseFloat(document.getElementById("max_time_weight").value);
+    const complexityWeight = parseFloat(document.getElementById("complexity_weight").value);
+
+    socket.emit("get_kmeans_clusters", {
+        k,
+        weights: {
+            max_time: maxTimeWeight,
+            complexity: complexityWeight
+        }
+    });
 });
 
-  // Filters category data
-select.addEventListener("change", () => {
-    const selected = select.value;
-    const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
-    draw_scatterplot_2_2(filtered);
+socket.on("kmeans_clusters_result", (result) => {
+    draw_scatterplot_kmeans(result.clusteredGames, result.centroids);
 });
-}
 
 
 socket.on("scatterplot_2_2_data", handle_scatterplot_2_2_data);
@@ -104,8 +123,8 @@ socket.on("scatterplot_2_2_data", handle_scatterplot_2_2_data);
 let barchart_2_1_data = undefined
 
 let handle_barchart_2_1_data = (payload) => {
-  barchart_2_1_data = payload.data
-  draw_barchart_2_1(barchart_2_1_data)
+    barchart_2_1_data = payload.data
+    draw_barchart_2_1(barchart_2_1_data)
 }
 
 socket.on("barchart_2_1_data", handle_barchart_2_1_data)
