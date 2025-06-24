@@ -70,6 +70,26 @@ head,
     background: rgb(180, 180, 180);
 }
 
+.button-small {
+    /* 300px: width if the sidepanel defined in the grid-template for #root */
+    /* 40px = 2 times 20px padding in .sidepanel */
+    width: 200;
+    border-radius: 10px;
+    height: 40px;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.button-small:hover {
+    background: rgb(180, 180, 180);
+}
+
+.k-means-inputs {
+    max-width: 30px;
+}
+
 .lda-select-label {
   font-family: sans-serif;
   font-size: 1rem;
@@ -126,3 +146,28 @@ pointer-events:none; /* Klick durch den Pfeil verhindern */
     font-size: 0.9em;
     color: black;
 }
+
+#snackbar {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px;
+    background-color: rgb(158, 171, 189); /* Red color for warning */
+    color: #000000;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-family: sans-serif;
+    /* Animation for fade in/out */
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+  }
+
+  /* Show the snackbar */
+  #snackbar.show {
+    visibility: visible;
+    opacity: 1;
+  }

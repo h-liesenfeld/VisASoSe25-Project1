@@ -3,38 +3,12 @@ import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
 // const preprocessing = require("./preprocessing.js")
-import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
-import { getExampleLDA } from "./druidExample.js";
-import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
+import { calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
 import { calc_scatterplot_data_kmeans } from "./preprocessing.js";
 import { kMeans } from "./kmeans.js";
 
 const file_path = "data/";
 const file_name = "bgg_Gameitems_clean.csv";
-
-// Spiele werden beim Start geladen und im Speicher gehalten
-let games = [];
-
-function loadGamesFromCSV() {
-    return new Promise((resolve, reject) => {
-        const results = [];
-        fs.createReadStream(file_path + file_name)
-            .pipe(csv())
-            .on("data", (data) => results.push(data))
-            .on("end", () => {
-                games = results;
-                resolve();
-            })
-            .on("error", (err) => reject(err));
-    });
-}
-
-// Lade die Spiele beim Start
-loadGamesFromCSV().then(() => {
-    console.log("Spiele aus CSV geladen:", games.length);
-}).catch(err => {
-    console.error("Fehler beim Laden der CSV:", err);
-});
 
 /**
  * Does some console.logs when a client connected.
@@ -117,8 +91,8 @@ export function setupConnection(socket) {
         })
     })
 
-    socket.on("get_kmeans_clusters", ({ k, weights }) => {
-        const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(games, weights);
+    socket.on("get_kmeans_clusters", ({ currentData, k, weights }) => {
+        const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(currentData, weights);
         const featureVectors = data.map(d => d.features);
 
         const contributionPerVariable = [
