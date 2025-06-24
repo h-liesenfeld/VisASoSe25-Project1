@@ -6,6 +6,7 @@ import { draw_scatterplot } from "./scatterplot.js"
 import { draw_box_plot_2_1 } from "./box_plot_2_1.js"
 import { draw_scatterplot_2_2 } from "./scatterplot_2_2.js"
 import { draw_barchart_2_1 } from "./barchart_2_1.js"
+import { draw_scatterplot_kmeans } from "./scatterplot_kmeans.js";
 import * as d3 from "d3"
 
 let hostname = window.location.hostname;
@@ -65,6 +66,10 @@ document.getElementById('load_box_plot_2_1_data_button').onclick = () => {
     }
 }
 
+document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
+    socket.emit("get_box_plot_2_1_data")
+    socket.emit("get_barchart_2_1_data")
+}
 document.getElementById('load_scatterplot_2_2_data_button').onclick = () => {
     if (currentData.length == 0) {
         showSnackbar();
@@ -130,3 +135,27 @@ function showSnackbar() {
         snackbar.classList.remove('show');
     }, 2000);
 }
+    // Filters category data
+    select.addEventListener("change", () => {
+        const selected = select.value;
+        const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
+        draw_scatterplot_2_2(filtered);
+    });
+
+document.getElementById("run_kmeans_button").addEventListener("click", () => {
+    const k = parseInt(document.getElementById("k_input").value);
+    const maxTimeWeight = parseFloat(document.getElementById("max_time_weight").value);
+    const complexityWeight = parseFloat(document.getElementById("complexity_weight").value);
+
+    socket.emit("get_kmeans_clusters", {
+        k,
+        weights: {
+            max_time: maxTimeWeight,
+            complexity: complexityWeight
+        }
+    });
+});
+
+socket.on("kmeans_clusters_result", (result) => {
+    draw_scatterplot_kmeans(result.clusteredGames, result.centroids);
+});

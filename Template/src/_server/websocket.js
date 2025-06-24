@@ -1,4 +1,4 @@
-//import * as csv from "csv-parser"
+import csv from "csv-parser"
 import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
@@ -6,10 +6,35 @@ import { print_clientConnected, print_clientDisconnected } from "./static/utils.
 import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
 import { getExampleLDA } from "./druidExample.js";
 import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
-
+import { calc_scatterplot_data_kmeans } from "./preprocessing.js";
+import { kMeans } from "./kmeans.js";
 
 const file_path = "data/";
 const file_name = "bgg_Gameitems_clean.csv";
+
+// Spiele werden beim Start geladen und im Speicher gehalten
+let games = [];
+
+function loadGamesFromCSV() {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        fs.createReadStream(file_path + file_name)
+            .pipe(csv())
+            .on("data", (data) => results.push(data))
+            .on("end", () => {
+                games = results;
+                resolve();
+            })
+            .on("error", (err) => reject(err));
+    });
+}
+
+// Lade die Spiele beim Start
+loadGamesFromCSV().then(() => {
+    console.log("Spiele aus CSV geladen:", games.length);
+}).catch(err => {
+    console.error("Fehler beim Laden der CSV:", err);
+});
 
 /**
  * Does some console.logs when a client connected.
@@ -91,4 +116,49 @@ export function setupConnection(socket) {
             data: data_array
         })
     })
+
+    socket.on("get_kmeans_clusters", ({ k, weights }) => {
+        const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(games, weights);
+        const featureVectors = data.map(d => d.features);
+
+        const contributionPerVariable = [
+            weights.max_time ?? 1,
+            weights.complexity ?? 1
+        ];
+
+        const clustered = kMeans(featureVectors, k, contributionPerVariable);
+
+        // Centroids berechnen
+        function computeCentroids(clustered, k) {
+            const centroids = [];
+            for (let i = 0; i < k; i++) {
+                const points = clustered.filter(d => d.centroidIndex === i).map(d => d.dataPoint);
+                if (points.length === 0) {
+                    centroids.push([0, 0]);
+                } else {
+                    const mean = [
+                        points.reduce((sum, p) => sum + p[0], 0) / points.length,
+                        points.reduce((sum, p) => sum + p[1], 0) / points.length
+                    ];
+                    centroids.push(mean);
+                }
+            }
+            return centroids;
+        }
+        const centroids = computeCentroids(clustered, k);
+
+        const clusteredGames = data.map((d, i) => ({
+            ...d,
+            cluster: clustered[i].centroidIndex
+        }));
+
+        socket.emit("kmeans_clusters_result", {
+            clusteredGames,
+            centroids,
+            minTime,
+            maxTime,
+            minComplexity,
+            maxComplexity
+        });
+    });
 }
