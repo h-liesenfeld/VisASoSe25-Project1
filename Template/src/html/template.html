@@ -24,15 +24,14 @@
       <div class="custom-select">
         <label for="data_filter_select" class="lda-select-label">Filter Data:</label>
         <select id="data_filter_select" class="dropdown">
-            <option value="all">All</option>
-            <option value="top-1000">Top 1000</option>
-            <option value="top-500">Top 500</option>
-            <option value="top-200">Top 200</option>
+            <option value="empty">-- Please Choose --</option>
             <option value="top-100">Top 100</option>
-            <!-- option value="all">Custom</option   See if this is doable -->
+            <option value="top-200">Top 200</option>
+            <option value="top-500">Top 500</option>
+            <option value="top-1000">Top 1000</option>
+            <option value="all">All</option>
         </select>
       </div>
-      <!-- <button id="load_barchart_2_1_data_button" class="button">Load Task 2.1 (Barchart)</button> -->
     </div>
     <div class="visualizations">
       <div class="box_plot_2_1">
@@ -56,24 +55,9 @@
           <g id="g_scatterplot_2_2"></g>
         </svg>
       </div>
-      <!-- <div class="barchart">
-        <svg class="svg_root" id="barchart_svg">
-          <g id="g_x_axis_barchart"></g>
-          <g id="g_y_axis_barchart"></g>
-          <g id="g_barchart"></g>
-        </svg>
-      </div>
-      <div class="scatterplot">
-        <svg class="svg_root" id="scatterplot_svg">
-          <g id="g_x_axis_scatterplot"></g>
-          <g id="g_y_axis_scatterplot"></g>
-          <g id="g_scatterplot"></g>
-        </svg>
-      </div>
-    </div>
-    -->
     </div>
     <div id="tooltip"></div>
+    <div id="snackbar">Please choose a data filter first</div>
 </body>
 
 </html>

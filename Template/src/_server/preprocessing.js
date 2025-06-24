@@ -15,9 +15,7 @@ import * as druid from "@saehrimnir/druidjs";
  * # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
  */
 
-export function calc_box_plot_data(games, dataSelection) {
-    //TODO: take first k(=dataSelection) elements of games
-
+export function calc_box_plot_data(games) {
     // Group by maxplayers
     const groups = d3.group(games, d => d.maxplayers);
 
@@ -55,9 +53,7 @@ export function calc_box_plot_data(games, dataSelection) {
     return box_plot_data;
 }
 
-export function calc_scatterplot_data(games, dataSelection) {
-    //TODO: take first k(=dataSelection) elements of games
-
+export function calc_scatterplot_data(games) {
     // Get unique categories
     let uniqueCategoriesArr = getUniqueGameCategories(games);
 
@@ -100,9 +96,7 @@ export function calcLDAData(allData) {
 /**
  * Bar Chart for Task 2.1 pre-processing
  */
-export function calc_barchart_data(games, dataSelection) {
-    //TODO: take first k(=dataSelection) elements of games
-    
+export function calc_barchart_data(games) {
     // Group by maxplayers
     const groups = d3.group(games, d => d.maxplayers);
 
