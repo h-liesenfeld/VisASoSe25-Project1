@@ -135,12 +135,6 @@ function showSnackbar() {
         snackbar.classList.remove('show');
     }, 2000);
 }
-    // Filters category data
-    select.addEventListener("change", () => {
-        const selected = select.value;
-        const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
-        draw_scatterplot_2_2(filtered);
-    });
 
 document.getElementById("run_kmeans_button").addEventListener("click", () => {
     const k = parseInt(document.getElementById("k_input").value);
