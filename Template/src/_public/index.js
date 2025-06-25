@@ -9,6 +9,8 @@ import { draw_barchart_2_1 } from "./barchart_2_1.js"
 import { draw_scatterplot_kmeans } from "./scatterplot_kmeans.js";
 import * as d3 from "d3"
 
+export const highlightDispatcher = new EventTarget();
+
 let hostname = window.location.hostname;
 let protocol = window.location.protocol;
 const socketUrl = protocol + "//" + hostname + ":" + configs.port;
