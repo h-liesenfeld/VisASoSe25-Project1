@@ -66,10 +66,6 @@ document.getElementById('load_box_plot_2_1_data_button').onclick = () => {
     }
 }
 
-document.getElementById("load_box_plot_2_1_data_button").onclick = () => {
-    socket.emit("get_box_plot_2_1_data")
-    socket.emit("get_barchart_2_1_data")
-}
 document.getElementById('load_scatterplot_2_2_data_button').onclick = () => {
     if (currentData.length == 0) {
         showSnackbar();

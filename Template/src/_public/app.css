@@ -73,13 +73,14 @@ head,
 .button-small {
     /* 300px: width if the sidepanel defined in the grid-template for #root */
     /* 40px = 2 times 20px padding in .sidepanel */
-    width: 200;
+    max-width: calc(300px - 60px);
     border-radius: 10px;
     height: 40px;
     font-size: 1em;
     font-weight: bold;
     margin-top: 10px;
     cursor: pointer;
+    align-self: center;
 }
 
 .button-small:hover {
@@ -88,6 +89,13 @@ head,
 
 .k-means-inputs {
     max-width: 30px;
+}
+
+.k-means-input-fields {
+    margin-top: 10px; 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between
 }
 
 .lda-select-label {
