@@ -17,13 +17,13 @@ import * as druid from "@saehrimnir/druidjs";
 
 export function calc_box_plot_data(games) {
     // Group by maxplayers
-    const groups = d3.group(games, d => d.maxplayers);
+    const groups = d3.group(games, d => d.max_players);
 
     let box_plot_data = [];
 
     for (const [max_players, games_list] of groups.entries()) {
         const ratings = games_list
-            .map(g => g.rating.rating)
+            .map(g => parseFloat(g.avg_rating))
             .sort(d3.ascending);
 
         const min = d3.min(ratings);
@@ -53,7 +53,36 @@ export function calc_box_plot_data(games) {
     return box_plot_data;
 }
 
+/**
+ * Bar Chart for Task 2.1 pre-processing
+ */
+export function calc_barchart_data(games) {
+    // Group by maxplayers
+    const groups = d3.group(games, d => d.max_players);
+
+    const countData = [];
+
+    for (const [max_players, games_list] of groups.entries()) {
+        countData.push({
+            [max_players]: {
+                count: games_list.length
+            }
+        });
+    }
+
+    countData.sort((a, b) => {
+        const aKey = parseInt(Object.keys(a)[0]);
+        const bKey = parseInt(Object.keys(b)[0]);
+        return aKey - bKey;
+    });
+
+    return countData;
+}
+
 export function calc_scatterplot_data(games) {
+    for (const game of games) {
+        game.category = game.category.split(',');
+    }
     // Get unique categories
     let uniqueCategoriesArr = getUniqueGameCategories(games);
 
@@ -61,12 +90,12 @@ export function calc_scatterplot_data(games) {
     let categoriesWithNumberOfGames = countGamesOfAllCategories(games);
     //TODO: make this interactive, k as input
     let k = 10;
-    let kMostFeaturedIds = categoriesWithNumberOfGames.slice(0, k).map(cat => cat.id);
+    let kMostFeaturedCategories = categoriesWithNumberOfGames.slice(0, k);
 
     // Create a dataset where each category is featured with each of its games and the parameters relevant for LDA
     let allData = [];
     uniqueCategoriesArr.forEach(cat => {
-        if (kMostFeaturedIds.includes(cat.id)) {
+        if (kMostFeaturedCategories.map(c => c.name).includes(cat)) {
             let dataIndividualCategory = createDataSetForCategory(cat, games);
             allData = allData.concat(dataIndividualCategory);
         }
@@ -93,50 +122,8 @@ export function calcLDAData(allData) {
     return scatterplotdata;
 }
 
-/**
- * Bar Chart for Task 2.1 pre-processing
- */
-export function calc_barchart_data(games) {
-    // Group by maxplayers
-    const groups = d3.group(games, d => d.maxplayers);
 
-    const countData = [];
 
-    for (const [max_players, games_list] of groups.entries()) {
-        countData.push({
-            [max_players]: {
-                count: games_list.length
-            }
-        });
-    }
-
-    countData.sort((a, b) => {
-        const aKey = parseInt(Object.keys(a)[0]);
-        const bKey = parseInt(Object.keys(b)[0]);
-        return aKey - bKey;
-    });
-
-    return countData;
-}
-
-/**
- * Returns boolean value, whether given row meets parameter conditions
- * @param {*} parameters
- * @param {*} row
- * @returns boolean
- */
-export function is_below_max_weight(parameters, row) {
-    return row.weight < parameters.max_weight;
-}
-/**
- * Calculates the bmi for a specific person
- * @param {age, height, name, weight} person
- * @returns {age, bmi, height, name, weight}
- */
-export function calc_bmi(person) {
-    person.bmi = person.weight / ((person.height / 100) * (person.height / 100));
-    return person;
-}
 /**
  * Converts all attribute values to float, than can be converted
  * @param {*} obj
@@ -167,16 +154,16 @@ export function test_func_add(a, b) {
 export function createDataSetForCategory(category, games) {
     let dataset = []
     games.forEach(game => {
-        if (game.types.categories.some(cat => cat.id == category.id)) {
+        if (game.category.some(cat => cat === category)) {
             dataset.push({
-                categoryName: category.name,
-                gameID: game.id,
-                gameTitle: game.title,
-                minplayers: game.minplayers,
-                maxplayers: game.maxplayers,
-                minplaytime: game.minplaytime,
-                maxplaytime: game.maxplaytime,
-                minage: game.minage
+                categoryName: category,
+                gameID: parseInt(game.bgg_id),
+                gameTitle: game.name,
+                minplayers: parseInt(game.min_players),
+                maxplayers: parseInt(game.max_players),
+                minplaytime: parseInt(game.min_time),
+                maxplaytime: parseInt(game.max_time),
+                minage: parseInt(game.min_age)
             });
         }
     });
@@ -184,7 +171,7 @@ export function createDataSetForCategory(category, games) {
 }
 
 export function getUniqueGameCategories(games) {
-    let categoriesPerGame = games.map(g => g.types).map(t => t.categories);
+    let categoriesPerGame = games.map(g => g.category);
     return [...new Set(categoriesPerGame.flat().map(JSON.stringify))].map(JSON.parse).sort((a, b) => (a.id - b.id));
 }
 
@@ -193,16 +180,16 @@ export function countGamesOfAllCategories(games) {
     let categoriesWithNumberOfGames = [];
     uniqueCategoriesArr.forEach(cat => {
         let numberOfGames = numberOfGamesPerCategory(cat, games);
-        categoriesWithNumberOfGames.push({ id: cat.id, name: cat.name, numberOfGames: numberOfGames });
+        categoriesWithNumberOfGames.push({ name: cat, numberOfGames: numberOfGames });
     });
     return categoriesWithNumberOfGames.sort((a, b) => (b.numberOfGames - a.numberOfGames));
 }
 
 export function numberOfGamesPerCategory(category, games) {
-    let categoriesPerGame = games.map(g => g.types).map(t => t.categories);
+    let categoriesPerGame = games.map(g => g.category);
     let result = 0;
     categoriesPerGame.forEach(game => {
-        if (game.some(cat => cat.id == category.id)) {
+        if (game.some(cat => cat === category)) {
             result++;
         }
     });

@@ -3,38 +3,12 @@ import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
 // const preprocessing = require("./preprocessing.js")
-import { is_below_max_weight, parse_numbers, calc_bmi, calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
-import { getExampleLDA } from "./druidExample.js";
-import boardgames_100 from "../../data/boardgames_100.json" with {type: 'json'}
+import { calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
 import { calc_scatterplot_data_kmeans } from "./preprocessing.js";
 import { kMeans } from "./kmeans.js";
 
 const file_path = "data/";
 const file_name = "bgg_Gameitems_clean.csv";
-
-// Spiele werden beim Start geladen und im Speicher gehalten
-let games = [];
-
-function loadGamesFromCSV() {
-    return new Promise((resolve, reject) => {
-        const results = [];
-        fs.createReadStream(file_path + file_name)
-            .pipe(csv())
-            .on("data", (data) => results.push(data))
-            .on("end", () => {
-                games = results;
-                resolve();
-            })
-            .on("error", (err) => reject(err));
-    });
-}
-
-// Lade die Spiele beim Start
-loadGamesFromCSV().then(() => {
-    console.log("Spiele aus CSV geladen:", games.length);
-}).catch(err => {
-    console.error("Fehler beim Laden der CSV:", err);
-});
 
 /**
  * Does some console.logs when a client connected.
@@ -72,74 +46,53 @@ export function setupConnection(socket) {
      *      - Filtering: if the row has a value, that contradicts the filtering parameters, data row will be excluded
      *          (in this case: weight should not be larger than the max_weight filter-parameter)
      */
-    socket.on("getData", (obj) => {
-        console.log(`Data request with properties ${JSON.stringify(obj)}...`);
-
-        getExampleLDA(); //Example how to use druidjs. Just prints to the console for now
-
-
-        let parameters = obj.parameters;
-
-        let jsonArray = [];
-
-        // This is reading the .csv file line by line
-        // So we can filter it line by line
-        // This saves a lot of RAM and processing time
+    socket.on('getData', (dataSelection) => {
+        let dataArray = [];
         fs.createReadStream(file_path + file_name)
             .pipe(parse({ delimiter: ',', columns: true }))
-            .on('data', function (row) {
-                row = parse_numbers(row)
-                row = calc_bmi(row)
-                // Filtering the data according the given parameter
-                // If it fits the parameter, add it to the result-array
-                let row_meets_criteria = is_below_max_weight(parameters, row)
-                if (row_meets_criteria) {
-                    jsonArray.push(row)
+            .on('data', row => {
+                if (dataSelection == -1 || dataArray.length < dataSelection) {
+                    dataArray.push(row);
                 }
             })
             .on("end", () => { //when all data is ready and processed, send it to the frontend of the socket
                 socket.emit("freshData", {
                     timestamp: new Date().getTime(),
-                    data: jsonArray,
-                    parameters: parameters,
+                    data: dataArray,
                 })
             });
         console.log(`freshData emitted`);
-    })
+    });
 
-    socket.on("get_box_plot_2_1_data", () => {
-        console.log("Request Box Plot Data for Task 2.1");
-
-        const data_array = calc_box_plot_data(boardgames_100);
-
-        socket.emit("box_plot_2_1_data", {
+    socket.on('get_box_plot_2_1_data', (currentData) => {
+        console.log('Request Box Plot Data for Task 2.1');
+        const data_array = calc_box_plot_data(currentData);
+        socket.emit('box_plot_2_1_data', {
             timestamp: new Date().getTime(),
             data: data_array
         });
     });
 
-    socket.on("get_scatterplot_2_2_data", () => {
-        console.log("Request Scatterplot Data for Task 2.2");
-        const data_array = calc_scatterplot_data(boardgames_100);
-        socket.emit("scatterplot_2_2_data", {
+    socket.on('get_scatterplot_2_2_data', (currentData) => {
+        console.log('Request Scatterplot Data for Task 2.2');
+        const data_array = calc_scatterplot_data(currentData);
+        socket.emit('scatterplot_2_2_data', {
             timestamp: new Date().getTime(),
             data: data_array
         });
     });
 
-    socket.on("get_barchart_2_1_data", () => {
-        console.log("Request Bar Chart Data for Task 2.1")
-
-        const data_array = calc_barchart_data(boardgames_100)
-
-        socket.emit("barchart_2_1_data", {
+    socket.on('get_barchart_2_1_data', (currentData) => {
+        console.log('Request Bar Chart Data for Task 2.1')
+        const data_array = calc_barchart_data(currentData)
+        socket.emit('barchart_2_1_data', {
             timestamp: new Date().getTime(),
             data: data_array
         })
     })
 
-    socket.on("get_kmeans_clusters", ({ k, weights }) => {
-        const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(games, weights);
+    socket.on("get_kmeans_clusters", ({ currentData, k, weights }) => {
+        const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(currentData, weights);
         const featureVectors = data.map(d => d.features);
 
         const contributionPerVariable = [

@@ -70,16 +70,79 @@ head,
     background: rgb(180, 180, 180);
 }
 
-input[type=text],
-select {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+.button-small {
+    /* 300px: width if the sidepanel defined in the grid-template for #root */
+    /* 40px = 2 times 20px padding in .sidepanel */
+    max-width: calc(300px - 60px);
+    border-radius: 10px;
+    height: 40px;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+    align-self: center;
 }
+
+.button-small:hover {
+    background: rgb(180, 180, 180);
+}
+
+.k-means-inputs {
+    max-width: 30px;
+}
+
+.k-means-input-fields {
+    margin-top: 10px; 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between
+}
+
+.lda-select-label {
+  font-family: sans-serif;
+  font-size: 1rem;
+  padding-right: 10px;
+}
+
+.custom-select {
+    margin-top: 20px;
+    position: relative;
+    font-family: Arial;
+}
+.custom-select select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-select select:hover,
+.custom-select select:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 8px rgba(0,123,255,0.2);
+  outline: none;
+}
+
+.custom-select::after {
+  content: "";
+  position: absolute;
+  top: calc(57%);
+  right: 16px;
+  width: 0; 
+  height: 0; 
+  border-left: 6px solid transparent;
+  border-right:6px solid transparent;
+
+/* Dreieck als Pfeil */
+border-top:6px solid #333; 
+pointer-events:none; /* Klick durch den Pfeil verhindern */
+}
+
 
 /* Tooltip for scatterplot_2_2 */
 #tooltip {
@@ -91,3 +154,28 @@ select {
     font-size: 0.9em;
     color: black;
 }
+
+#snackbar {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px;
+    background-color: rgb(158, 171, 189); /* Red color for warning */
+    color: #000000;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-family: sans-serif;
+    /* Animation for fade in/out */
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+  }
+
+  /* Show the snackbar */
+  #snackbar.show {
+    visibility: visible;
+    opacity: 1;
+  }
