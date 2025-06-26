@@ -89,7 +89,8 @@ socket.on('box_plot_2_1_data', handle_box_plot_2_1_data);
 
 let handle_scatterplot_2_2_data = (payload) => {
     scatterplot_2_2_data = payload.data;
-    draw_scatterplot_2_2(scatterplot_2_2_data);
+    window.scatterplot_2_2_fullData = payload.data;
+    draw_scatterplot_2_2(scatterplot_2_2_data); 
     setupLDADropdownOptions(scatterplot_2_2_data);
 }
 socket.on('scatterplot_2_2_data', handle_scatterplot_2_2_data);

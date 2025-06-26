@@ -32,23 +32,24 @@ export function draw_scatterplot_2_2(data) {
     let width = parseInt(svg.style("width"));
     let height = parseInt(svg.style("height"));
 
+    const fullExtentX = d3.extent(window.scatterplot_2_2_fullData || data, d => d.x);
+    const fullExtentY = d3.extent(window.scatterplot_2_2_fullData || data, d => d.y);
     /**
      * Scale function for the x-axis
      */
-    const xScale = d3
-        .scaleLinear()
-        .domain([d3.min(data.map((d) => d.x)), d3.max(data.map((d) => d.x))])
-        .range([0, width - margin.left - margin.right]);
+    
+    const xScale = d3.scaleLinear()
+        .domain(fullExtentX)
+        .range([0, width - margin.left - margin.right])
 
     /**
      * Scale unction for the y-axis
      */
-    const yScale = d3
-        .scaleLinear()
-        .domain([d3.min(data.map((d) => d.y)), d3.max(data.map((d) => d.y))])
+    
+    const yScale = d3.scaleLinear()
+        .domain(fullExtentY)
         .range([height - margin.top - margin.bottom, 0]);
-
-
+        
     let categories = [...new Set(data.map(d => d.categoryName))]
 
     var color = d3.scaleOrdinal()
