@@ -29,8 +29,6 @@ export function draw_scatterplot_kmeans(clusteredGames, centroids) {
         .selectAll(".scatterplot_kmeans_circle")
         .data(clusteredGames);
 
-    const tooltip = d3.select("#tooltip");
-
     scatterplot_circle.enter()
         .append("circle")
         .attr("class", "scatterplot_kmeans_circle")
@@ -40,28 +38,7 @@ export function draw_scatterplot_kmeans(clusteredGames, centroids) {
         .attr("stroke-width", 1)
         .attr("r", 4)
         .attr("cx", d => margin.left + xScale(d.features[0]))
-        .attr("cy", d => margin.top + yScale(d.features[1]))
-        .on("mouseover", function (event, d) {
-            d3.select(this)
-                .attr("stroke", "black")
-                .attr("stroke-width", 3);
-
-                tooltip
-            .style("visibility", "visible")
-            .html(`Name: ${d.name || "Unknown"}<br/>Cluster: ${d.cluster}<br/>x: ${d.features[0].toFixed(2)}<br/>y: ${d.features[1].toFixed(2)}`);
-    })
-    .on("mousemove", function (event) {
-        tooltip
-            .style("top", (event.pageY + 10) + "px")
-            .style("left", (event.pageX + 10) + "px");
-    })
-    .on("mouseout", function () {
-        d3.select(this)
-            .attr("stroke", "#222")
-            .attr("stroke-width", 1);
-        tooltip.style("visibility", "hidden");
-    });
-
+        .attr("cy", d => margin.top + yScale(d.features[1]));
 
     scatterplot_circle.exit().remove();
 
