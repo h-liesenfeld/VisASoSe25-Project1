@@ -1,4 +1,3 @@
-import csv from "csv-parser"
 import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
