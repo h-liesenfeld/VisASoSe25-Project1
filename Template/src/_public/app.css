@@ -34,6 +34,7 @@ head,
     grid-area: sidepanel;
     background: rgb(202, 202, 202);
     padding: 20px;
+    overflow: auto;
 }
 
 .visualizations {
