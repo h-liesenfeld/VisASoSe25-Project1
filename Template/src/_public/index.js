@@ -5,6 +5,8 @@ import { draw_box_plot_2_1 } from "./box_plot_2_1.js"
 import { draw_scatterplot_2_2 } from "./scatterplot_2_2.js"
 import { draw_barchart_2_1 } from "./barchart_2_1.js"
 import { draw_scatterplot_kmeans } from "./scatterplot_kmeans.js";
+import { draw_graph_analysis } from "./graph_analysis.js"
+
 
 let hostname = window.location.hostname;
 let protocol = window.location.protocol;
@@ -15,6 +17,7 @@ let currentData = [];
 let box_plot_2_1_data = undefined;
 let scatterplot_2_2_data = undefined;
 let barchart_2_1_data = undefined;
+let graph_analysis_data = undefined;
 
 export const socket = io(socketUrl)
 socket.on("connect", () => {
@@ -59,7 +62,8 @@ document.getElementById('load_box_plot_2_1_data_button').onclick = () => {
         showSnackbar();
     } else {
         socket.emit('get_box_plot_2_1_data', currentData);
-        socket.emit('get_barchart_2_1_data', currentData);
+        // socket.emit('get_graph_analysis_data', currentData);
+        // socket.emit('get_barchart_2_1_data', currentData);
     }
 }
 
@@ -68,6 +72,14 @@ document.getElementById('load_scatterplot_2_2_data_button').onclick = () => {
         showSnackbar();
     } else {
         socket.emit('get_scatterplot_2_2_data', currentData);
+    }
+}
+
+document.getElementById('load_graph_analysis_data_button').onclick = () => {
+    if (currentData.length == 0) {
+        showSnackbar();
+    } else {
+        socket.emit('get_graph_analysis_data', currentData);
     }
 }
 
@@ -101,6 +113,12 @@ socket.on('barchart_2_1_data', handle_barchart_2_1_data);
 function redrawPlots() {
     //redraw all charts
 }
+
+let handle_graph_analysis_data = (payload) => {
+    graph_analysis_data = payload.data;
+    draw_graph_analysis(graph_analysis_data);
+}
+socket.on('graph_analysis_data', handle_graph_analysis_data);
 
 function setupLDADropdownOptions(data) {
     const select = document.getElementById("lda_filter_select");

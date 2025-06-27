@@ -4,6 +4,9 @@
 
 import * as d3 from "d3";
 import * as druid from "@saehrimnir/druidjs";
+import fs from "fs";
+import { parse } from "csv-parse/sync";
+import pagerank from "pagerank.js";
 
 /**
  * # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -77,6 +80,44 @@ export function calc_barchart_data(games) {
     });
 
     return countData;
+}
+
+export function calc_graph_analysis_data(subsetNodes) {
+  const subsetIds = new Set(subsetNodes.map(d => d.bgg_id));
+  const graph = pagerank;
+
+  const rawCSV = fs.readFileSync("./data/recommendations-2021-12-31_FULL.csv", "utf-8");
+  const allRecs = parse(rawCSV, { columns: true });
+
+  const nodes = subsetNodes.map(d => ({
+    id: d.bgg_id,
+    name: d.name,
+    category: d.category ? d.category.split(',')[0].trim() : "Unknown",
+    pagerank: 0
+  }));
+
+  const links = [];
+  for (const row of allRecs) {
+    const sourceId = row.ID;
+    if (!subsetIds.has(sourceId)) continue;
+
+    for (let i = 1; i <= 28; i++) {
+      const targetId = row[`recommendation${i}`];
+      if (targetId && subsetIds.has(targetId)) {
+        links.push({ source: sourceId, target: targetId });
+        graph.link(sourceId, targetId, 1.0);
+      }
+    }
+  }
+
+  graph.rank(0.85, 0.00001, (node_id, rank) => {
+    const node = nodes.find(n => n.id === node_id);
+    if (node) {
+      node.pagerank = rank;
+    }
+  });
+
+  return { nodes, links };
 }
 
 export function calc_scatterplot_data(games) {

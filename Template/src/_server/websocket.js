@@ -2,7 +2,7 @@ import { parse } from "csv-parse";
 import * as fs from "fs"
 import { print_clientConnected, print_clientDisconnected } from "./static/utils.js"
 // const preprocessing = require("./preprocessing.js")
-import { calc_box_plot_data, calc_scatterplot_data, calc_barchart_data } from "./preprocessing.js"
+import { calc_box_plot_data, calc_scatterplot_data, calc_barchart_data, calc_graph_analysis_data } from "./preprocessing.js"
 import { calc_scatterplot_data_kmeans } from "./preprocessing.js";
 import { kMeans } from "./kmeans.js";
 
@@ -89,6 +89,15 @@ export function setupConnection(socket) {
             data: data_array
         })
     })
+
+    socket.on('get_graph_analysis_data', (currentData) => {
+            console.log('Request Graph Analysis Data for Task 3');
+            const data_array = calc_graph_analysis_data(currentData);
+            socket.emit('graph_analysis_data', {
+                timestamp: new Date().getTime(),
+                data: data_array
+            });
+    });
 
     socket.on('get_kmeans_clusters', ({ currentData, k, weights }) => {
         const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(currentData, weights);
