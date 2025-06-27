@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+const tooltip = d3.select("#tooltip");
 
 export function draw_scatterplot_kmeans(clusteredGames, centroids) {
     const margin = { top: 50, bottom: 50, left: 50, right: 50 };
@@ -30,15 +31,35 @@ export function draw_scatterplot_kmeans(clusteredGames, centroids) {
         .data(clusteredGames);
 
     scatterplot_circle.enter()
-        .append("circle")
-        .attr("class", "scatterplot_kmeans_circle")
-        .merge(scatterplot_circle)
-        .attr("fill", d => color(d.cluster))
-        .attr("stroke", "#222")
-        .attr("stroke-width", 1)
-        .attr("r", 4)
-        .attr("cx", d => margin.left + xScale(d.features[0]))
-        .attr("cy", d => margin.top + yScale(d.features[1]));
+    .append("circle")
+    .attr("class", "scatterplot_kmeans_circle")
+    .merge(scatterplot_circle)
+    .attr("fill", d => color(d.cluster))
+    .attr("stroke", "#222")
+    .attr("stroke-width", 1)
+    .attr("r", 4)
+    .attr("cx", d => margin.left + xScale(d.features[0]))
+    .attr("cy", d => margin.top + yScale(d.features[1]))
+    .on("mouseover", function (event, d) {
+        d3.select(this)
+            .attr("stroke", "black")
+            .attr("stroke-width", 3);
+
+        tooltip
+            .style("visibility", "visible")
+            .html(`Name: ${d.name || "Unknown"}<br/>Cluster: ${d.cluster}<br/>x: ${d.features[0].toFixed(2)}<br/>y: ${d.features[1].toFixed(2)}`);
+    })
+    .on("mousemove", function (event) {
+        tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+    })
+    .on("mouseout", function () {
+        d3.select(this)
+            .attr("stroke", "#222")
+            .attr("stroke-width", 1);
+        tooltip.style("visibility", "hidden");
+    });
 
     scatterplot_circle.exit().remove();
 
@@ -60,6 +81,78 @@ export function draw_scatterplot_kmeans(clusteredGames, centroids) {
         .attr("opacity", 0.7);
 
     centroids_circle.exit().remove();
+
+    g_scatterplot.selectAll(".cluster_legend_item").remove();
+
+    let lockedCluster = null;  // 🔒 click-to-lock state
+
+
+    g_scatterplot.selectAll(".cluster_legend_item").remove();
+
+    //Legend for clusters
+    let legend = g_scatterplot.selectAll(".cluster_legend_item")
+        .data(d3.range(clusterCount))
+        .enter()
+        .append("g")
+        .attr("class", "cluster_legend_item")
+        .attr("transform", (d, i) => `translate(${width - margin.right - 120}, ${margin.top + i * 20})`)
+        .style("cursor", "pointer")
+        .on("mouseover", function (event, clusterId) {
+            if (lockedCluster !== null) return;
+            highlightCluster(clusterId);
+        })
+        .on("mouseout", function () {
+            if (lockedCluster !== null) return;
+            resetHighlight();
+        })
+        //Locks onto cluster when clicked
+        .on("click", function (event, clusterId) {
+            if (lockedCluster === clusterId) {
+                lockedCluster = null;
+                resetHighlight();
+            } else {
+                lockedCluster = clusterId;
+                highlightCluster(clusterId);
+            }
+        });
+
+    legend.append("rect")
+        .attr("width", 12)
+        .attr("height", 12)
+        .attr("fill", d => color(d));
+
+    legend.append("text")
+        .attr("x", 18)
+        .attr("y", 10)
+        .attr("font-size", "12px")
+        .attr("fill", "#000")
+        .text(d => `Cluster ${d}`);
+    //Highlights cluster on hover
+    function highlightCluster(clusterId) {
+        g_scatterplot.selectAll(".scatterplot_kmeans_circle")
+            .attr("opacity", d => d.cluster === clusterId ? 1 : 0.1);
+
+        g_scatterplot.selectAll(".scatterplot_kmeans_centroid")
+            .attr("opacity", (d, i) => i === clusterId ? 1 : 0.1);
+    }
+
+    function resetHighlight() {
+        g_scatterplot.selectAll(".scatterplot_kmeans_circle")
+            .attr("opacity", 1);
+        g_scatterplot.selectAll(".scatterplot_kmeans_centroid")
+            .attr("opacity", 0.7);
+    }
+    legend.append("rect")
+        .attr("width", 12)
+        .attr("height", 12)
+        .attr("fill", d => color(d));
+
+    legend.append("text")
+        .attr("x", 18)
+        .attr("y", 10)
+        .attr("font-size", "12px")
+        .attr("fill", "#000")
+        .text(d => `Cluster ${d}`);
 
     // Achsen
     let x_axis = d3.axisBottom(xScale);
