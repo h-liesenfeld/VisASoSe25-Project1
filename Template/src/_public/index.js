@@ -134,7 +134,7 @@ document.getElementById("run_kmeans_button").addEventListener("click", () => {
     const maxTimeWeight = parseFloat(document.getElementById("max_time_weight").value);
     const complexityWeight = parseFloat(document.getElementById("complexity_weight").value);
 
-    socket.emit("get_kmeans_clusters", {
+    socket.emit('get_kmeans_clusters', {
         currentData,
         k,
         weights: {

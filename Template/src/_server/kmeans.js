@@ -149,6 +149,10 @@ function calculateNewCentroids(dataObjects, centroids) {
 function getRandomCentroids(dataObjects, k) {
     let centroids = [];
 
+    if (!dataObjects || dataObjects.length === 0 || !dataObjects[0].dataPoint || dataObjects[0].dataPoint.length === 0) {
+        return centroids; //no data, no centroids
+    }
+
     for (let kIndex = 0; kIndex < k; kIndex++) {
         let dimensionCount = dataObjects[0].dataPoint.length
         let centroid = [];

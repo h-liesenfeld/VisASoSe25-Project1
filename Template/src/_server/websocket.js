@@ -90,7 +90,7 @@ export function setupConnection(socket) {
         })
     })
 
-    socket.on("get_kmeans_clusters", ({ currentData, k, weights }) => {
+    socket.on('get_kmeans_clusters', ({ currentData, k, weights }) => {
         const { data, minTime, maxTime, minComplexity, maxComplexity } = calc_scatterplot_data_kmeans(currentData, weights);
         const featureVectors = data.map(d => d.features);
 
