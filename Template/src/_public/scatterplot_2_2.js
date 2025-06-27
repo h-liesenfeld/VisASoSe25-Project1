@@ -32,24 +32,25 @@ export function draw_scatterplot_2_2(data) {
     let width = parseInt(svg.style("width"));
     let height = parseInt(svg.style("height"));
 
+    const fullExtentX = d3.extent(window.scatterplot_2_2_fullData || data, d => d.x);
+    const fullExtentY = d3.extent(window.scatterplot_2_2_fullData || data, d => d.y);
     /**
      * Scale function for the x-axis
      */
-    const xScale = d3
-        .scaleLinear()
-        .domain([d3.min(data.map((d) => d.x)), d3.max(data.map((d) => d.x))])
-        .range([0, width - margin.left - margin.right]);
+    
+    const xScale = d3.scaleLinear()
+        .domain(fullExtentX)
+        .range([0, width - margin.left - margin.right])
 
     /**
      * Scale unction for the y-axis
      */
-    const yScale = d3
-        .scaleLinear()
-        .domain([d3.min(data.map((d) => d.y)), d3.max(data.map((d) => d.y))])
+    
+    const yScale = d3.scaleLinear()
+        .domain(fullExtentY)
         .range([height - margin.top - margin.bottom, 0]);
-
-
-    let categories = [...new Set(data.map(d => d.categoryName))]
+        
+    let categories = [...new Set(data.map(d => d.category))]
 
     var color = d3.scaleOrdinal()
         .domain(categories)
@@ -88,6 +89,58 @@ export function draw_scatterplot_2_2(data) {
         })
 
     scatterplot_circle.exit().remove()
+    //Highlight lock for category selection
+    let lockedCategory = null;
+
+    g_scatterplot.selectAll(".legend_item").remove();
+
+    let legend = g_scatterplot.selectAll(".legend_item")
+        .data(categories)
+        .enter()
+        .append("g")
+        .attr("class", "legend_item")
+        .attr("transform", (d, i) => `translate(${width - margin.right - 120}, ${margin.top + i * 20})`)
+        .style("cursor", "pointer")
+        .on("mouseover", function (event, cat) {
+            if (lockedCategory !== null) return;
+            highlightCategory(cat);
+        })
+        .on("mouseout", function () {
+            if (lockedCategory !== null) return;
+            resetHighlight();
+        })
+        .on("click", function (event, cat) {
+            if (lockedCategory === cat) {
+                lockedCategory = null;
+                resetHighlight();
+            } else {
+                lockedCategory = cat;
+                highlightCategory(cat);
+            }
+        });
+
+    legend.append("rect")
+        .attr("width", 12)
+        .attr("height", 12)
+        .attr("fill", d => color(d));
+
+    legend.append("text")
+        .attr("x", 18)
+        .attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "12px")
+        .text(d => String(d) || "Unknown");
+
+
+    function highlightCategory(cat) {
+        g_scatterplot.selectAll(".scatterplot_circle")
+            .attr("opacity", d => d.category === cat ? 1 : 0.1);
+    }
+
+    function resetHighlight() {
+        g_scatterplot.selectAll(".scatterplot_circle")
+            .attr("opacity", 1);
+    }
 
     /**
      * Drawing the x-axis for the visualized data

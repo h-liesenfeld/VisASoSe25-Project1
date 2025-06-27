@@ -86,7 +86,8 @@ socket.on('box_plot_2_1_data', handle_box_plot_2_1_data);
 
 let handle_scatterplot_2_2_data = (payload) => {
     scatterplot_2_2_data = payload.data;
-    draw_scatterplot_2_2(scatterplot_2_2_data);
+    window.scatterplot_2_2_fullData = payload.data;
+    draw_scatterplot_2_2(scatterplot_2_2_data); 
     setupLDADropdownOptions(scatterplot_2_2_data);
 }
 socket.on('scatterplot_2_2_data', handle_scatterplot_2_2_data);
@@ -103,9 +104,20 @@ function redrawPlots() {
 
 function setupLDADropdownOptions(data) {
     const select = document.getElementById("lda_filter_select");
-    const uniqueGroups = [...new Set(data.map(d => d.category))];
+    const uniqueGroups = [...new Set(data.map(d => d.category))].sort();
 
-    select.innerHTML = `<option value="all">All</option>`;
+
+    select.setAttribute("multiple", "multiple");
+    select.setAttribute("size", Math.min(uniqueGroups.length, 12));
+
+
+    select.innerHTML = "";
+
+    const allOpt = document.createElement("option");
+        allOpt.value = "all";
+        allOpt.textContent = "All";
+        select.appendChild(allOpt);
+
     uniqueGroups.forEach(group => {
         const opt = document.createElement("option");
         opt.value = group;
@@ -113,13 +125,25 @@ function setupLDADropdownOptions(data) {
         select.appendChild(opt);
     });
 
-    // Filters category data
-    select.addEventListener("change", () => {
-        const selected = select.value;
-        const filtered = selected === "all" ? data : data.filter(d => d.category === selected);
-        draw_scatterplot_2_2(filtered);
-    });
+    for (const option of select.options) {
+        option.selected = true;
+    }
 
+    select.addEventListener("change", () => {
+    const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
+
+    //Selects all 
+    if (selectedOptions.includes("all")) {
+        for (const option of select.options) {
+            option.selected = true;
+        }
+        draw_scatterplot_2_2(data);
+        return;
+    }
+
+    const filtered = data.filter(d => selectedOptions.includes(d.category));
+    draw_scatterplot_2_2(filtered);
+    });
 }
 
 function showSnackbar() {
